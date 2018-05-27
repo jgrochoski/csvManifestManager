@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane id="BorderPane" fx:id="rootPane" prefHeight="600" prefWidth="600" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dsavant.battletech.FXMLController">
+    <center>
+      <VBox>
+         <children>
+            <HBox>
+               <children>
+                      <BorderPane minHeight="100.0" minWidth="200.0">
+                           <center>
+                              <TreeView id="dataElementTreeView" fx:id="dataElementTreeView" prefHeight="2000.0" prefWidth="1000.0" />
+                           </center>
+                        </BorderPane>
+                  <ScrollPane>
+                    <content>
+                      <BorderPane minHeight="100.0" minWidth="200.0">
+                           <center>
+                              <TextArea id="dataElementTextArea" fx:id="dataElementTextArea" editable="false" prefHeight="2000.0" prefWidth="2000.0" />
+                           </center>
+                        </BorderPane>
+                    </content>
+                  </ScrollPane>
+               </children>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="3000.0">
+               <children>
+                  <TextField id="dataDirTextField" fx:id="dataDirTextField" promptText="Enter the data directory" HBox.hgrow="ALWAYS">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding></TextField>
+                  <Button id="launchDataFileChooserButton" fx:id="launchDataFileChooserButton" onAction="#handleLaunchDataFileChooserButtonAction" mnemonicParsing="false" text="^" />
+                  <TextField id="modsDirTextField" fx:id="modsDirTextField" promptText="Enter the mods directory" HBox.hgrow="ALWAYS">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding></TextField>
+                  <Button id="launchModsFileChooserButton" fx:id="launchModsFileChooserButton" onAction="#handleLaunchModsFileChooserButtonAction" mnemonicParsing="false" text="^" />
+               </children>
+            </HBox>
+            <HBox prefHeight="50.0" prefWidth="3000.0">
+               <children>
+                  <Button id="loadFilesButton" fx:id="loadFilesButton" onAction="#handleLoadFilesButtonAction" text="Load Files">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin></Button>
+                  <Button id="writeFilesButton" fx:id="writeFilesButton" onAction="#handleWriteFilesButtonAction" text="Write Manifest">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin></Button>
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </VBox>
+    </center>
+</BorderPane>

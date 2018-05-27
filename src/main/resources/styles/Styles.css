@@ -1,0 +1,14 @@
+.button {
+    -fx-font-weight: bold;
+}
+.tree-cell.original {
+    
+}
+.tree-cell.override {
+    -fx-font-weight: bold;
+    -fx-background-color: red;
+}
+.tree-cell.new {
+    -fx-text-fill: white;
+    -fx-background-color: green;
+}
