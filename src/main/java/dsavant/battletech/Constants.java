@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 
@@ -65,6 +66,7 @@ public interface Constants {
     public static final String ADDENDUM_ID = "addendum";
     public static final int ADDENDUM_INDEX = 10;
     public static final String DEFAULT_ADDENDUM = "FALSE";
+    public static final String COMPONENT_TYPE_KEY = "ComponentType";
     public static final String DATA_DIR_CONFIG_PROP = "dataDirectory";
     public static final String MODS_DIR_CONFIG_PROP = "modsDirectory";
     public static Properties config = readConfig();
@@ -77,8 +79,9 @@ public interface Constants {
     public static final ArrayList<String> MANIFEST_HEADERS = createManifestHeaders();
     public static final String[] MANIFEST_HEADERS_ARRAY = MANIFEST_HEADERS.toArray(new String[MANIFEST_HEADERS.size()]);
     public static final Map<String, String> MANIFEST_MAP = createManifestMap();
+    public static final Map<String, String> MANIFEST_MAP_LOWER_TO_CAMEL = createCamelManifestMap();
     public static Map<String, String> createManifestMap() {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new TreeMap<String, String>();
         result.put("abilities", "AbilityDef");
         result.put("ammunition", "AmmunitionDef");
         result.put("ammunitionBox", "AmmunitionBoxDef");
@@ -122,6 +125,15 @@ public interface Constants {
         result.put("vehicle", "VehicleDef");
         result.put("vehicleChassis", "VehicleChassisDef");
         result.put("weapon", "WeaponDef");
+        return(result);
+    }
+    
+    public static Map<String, String> createCamelManifestMap() {
+        Map<String, String> result = new TreeMap<String, String>();
+        Map<String, String> loopMap = createManifestMap();
+        for(String key : loopMap.keySet()) {
+            result.put(key.toLowerCase(), loopMap.get(key));
+        }
         return(result);
     }
     

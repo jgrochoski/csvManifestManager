@@ -219,7 +219,12 @@ public class FXMLController implements Constants, Initializable, EventListener {
                     sb.append(line);
                     sb.append('\n');
                 }
-                this.scrollingAlert("Processing Errors", sb.toString());
+                StringBuilder reducedSb = new StringBuilder("These errors were encountered while processing source files.\nPlease fix these errors if they are meaningful (some you just won't care about) and try again.\n\n");
+                for(String line : this.dataLoader.reducedErrorList) {
+                    reducedSb.append(line);
+                    reducedSb.append('\n');
+                }
+                this.scrollingAlert("Processing Errors", sb.toString(), reducedSb.toString(), "Show only mod dir Errors");
             }
         } catch(IOException ioe) {
             System.err.println("Exception trying to load elements: "+ioe);
@@ -246,7 +251,7 @@ public class FXMLController implements Constants, Initializable, EventListener {
                 recordStringBuilder.append("\n");
             }
         }
-        this.scrollingAlert("Records added to in-memory manifest", recordStringBuilder.toString());
+        this.scrollingAlert("Records added to in-memory manifest", recordStringBuilder.toString(), null, "");
     }
     
     private void writeFiles() throws IOException {
@@ -282,8 +287,8 @@ public class FXMLController implements Constants, Initializable, EventListener {
         return(result.get() == ButtonType.OK);
     }
     
-    public boolean scrollingAlert(String title, String text) {
-        ScrollingAlert alert = new ScrollingAlert(AlertType.INFORMATION, title, text);
+    public boolean scrollingAlert(String title, String text, String reducedText, String checkBoxLabel) {
+        ScrollingAlert alert = new ScrollingAlert(AlertType.INFORMATION, title, text, reducedText, checkBoxLabel);
         Optional<ButtonType> result = alert.showAndWait();
         //the check against button type is only valid if there are buttons to click - the INFORMATION type does not have that
         //return(result.get() == ButtonType.OK);

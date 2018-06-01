@@ -25,9 +25,12 @@ public class DataElement implements Constants {
     //the json contents of the file
     private JsonObject contents = null;
     
+    private DataElement() {
+        super();
+    }
     
-    public DataElement(String manifestType, File sourceFile, String stripDir) throws IOException {
-        this.manifestType = manifestType;
+    public DataElement(String manifest, File sourceFile, String stripDir) throws IOException {
+        this();
         String newPath = sourceFile.getAbsolutePath();
         if(newPath.startsWith(stripDir)) {
             newPath = newPath.substring(stripDir.length());
@@ -36,6 +39,17 @@ public class DataElement implements Constants {
             }
         }
         this.setPath(newPath);
+        //set the manifest
+        if(manifest != null) {
+            if(MANIFEST_MAP.containsValue(manifest)) {//manifest type is already valid
+                this.manifestType = manifest;
+            } else if(MANIFEST_MAP.containsKey(manifest)) {//manifest type is a directory name - convert to type
+                this.manifestType = MANIFEST_MAP.get(manifest);
+            } else {//need to find manifest in file contents
+            //this.manifestType = null; //forces the convertFileToJSON method to set the manifest or throw an error
+            }
+        }
+        //read the JSON into this format
         this.convertFileToJSON(sourceFile);
     }
     
@@ -92,6 +106,16 @@ public class DataElement implements Constants {
         return(result);
     }
     
+    public static String getTypeFromJsonObject(JsonObject j) {
+        String result = null;
+        String key = getCaseInsensitiveKey(COMPONENT_TYPE_KEY, j);
+        if(key != null) {
+            String value = j.getString(key);
+            result = MANIFEST_MAP_LOWER_TO_CAMEL.get(value.toLowerCase());//convert whatever case it is in to camel case
+        }
+        return(result);
+    }
+    
     public static JsonObject getDescriptionFromJsonObject(JsonObject j) {
         JsonObject result = null;
         if(j.containsKey("description")) {
@@ -104,10 +128,35 @@ public class DataElement implements Constants {
         return(result);
     }
     
+    /**
+     * Performs a case insensitive search for a given key in the root of the object
+     * 
+     * @param key
+     * @param json
+     * @return the case sensitive key that is actually in the json object
+     */
+    public static String getCaseInsensitiveKey(String key, JsonObject json) {
+        String result = null;
+        for(String jsonKey : json.keySet()) {
+            if(jsonKey.equalsIgnoreCase(key)) {
+                result = jsonKey;//return the key in the case it was in the json object as
+                break;
+            }
+        }
+        return(result);
+    }
+    
+    /**
+     * reads a json file in and converts it to this object format
+     * 
+     * @param sourceFile
+     * @throws IOException if the manifest type has not already been set and can not be found in the json either
+     */
     private void convertFileToJSON(File sourceFile) throws IOException {
         FileReader fr = new FileReader(sourceFile);
         JsonReader jr = Json.createReader(fr);
         this.contents = jr.readObject();
+        //set the id of this object
         try {
             this.descriptionID = getIdFromJsonObject(this.contents);
             if(this.descriptionID == null || this.descriptionID.trim().equals(NULL_STRING)) {
@@ -122,5 +171,12 @@ public class DataElement implements Constants {
             this.descriptionID = descTemp.substring(0, descTemp.indexOf(JSON_EXT));
         }
         this.descriptionID = this.descriptionID.trim();
+        //set the manifest if it is null
+        if(this.manifestType == null) {
+            this.manifestType = getTypeFromJsonObject(this.contents);
+            if(this.manifestType == null || this.manifestType.trim().equals(NULL_STRING)) {
+                throw new IOException("Could not identify the manifest type for "+this.descriptionID+", from the directory or the contents of the file.");
+            }
+        }
     }
 }

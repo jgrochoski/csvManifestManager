@@ -20,6 +20,7 @@ import javax.json.stream.JsonParsingException;
  */
 public class DataLoader implements Constants {
     public List<String> errorList;
+    public List<String> reducedErrorList;
     
     public String dataDir = "c:\\games\\steam\\steamapps\\common\\BATTLETECH\\BattleTech_Data\\StreamingAssets\\data";
     public String modDir = "c:\\games\\steam\\steamapps\\common\\BATTLETECH\\BattleTech_Data\\StreamingAssets\\mods";
@@ -50,6 +51,7 @@ public class DataLoader implements Constants {
     public void loadElements() throws IOException {
         //create a new errorlist
         this.errorList = new ArrayList<String>();
+        this.reducedErrorList = new ArrayList<String>();
         //start by loading all json files in manifest directories into the map
         //files in children "data" directories
         File dataDirFile = new File(this.dataDir);
@@ -59,6 +61,7 @@ public class DataLoader implements Constants {
             if(!this.versionManifestFile.exists()) {
                 this.publishEvent(NO_VERSION_MANIFEST, NO_VERSION_MANIFEST, this.dataDir + File.separator + VERSION_MANIFEST_FILENAME);
                 this.errorList.add("versionManifest.csv was not found at "+ this.dataDir + File.separator + VERSION_MANIFEST_FILENAME);
+                this.reducedErrorList.add("versionManifest.csv was not found at "+ this.dataDir + File.separator + VERSION_MANIFEST_FILENAME);
             }
             this.loadVersionManifest(this.versionManifestFile);
             //load the data into DataElement array and map
@@ -88,20 +91,20 @@ public class DataLoader implements Constants {
                 if(f.isDirectory()) {//recurse directories
                     this.loadDirectory(f, f.getName(), mDirName, stripDir, depth + 1);
                 } else {
-                    if(mDirName != null) {
-                        if(f.getName().endsWith(JSON_EXT)) {//found a json file
-                            try {
-                                DataElement de = new DataElement(MANIFEST_MAP.get(mDirName), f, stripDir);
-                                this.jsonFiles.get(mDirName).add(de);
-                            } catch(JsonParsingException t) {
-                                //JGG - TODO - write all of these errors to a log to display
-                                System.err.println("Caught an exception trying to read JSON file "+f.getName());
-                                System.err.println("Exception is::"+t);
-                                this.errorList.add("Skipping malformed JSON file "+f.getName()+" in "+f.getParent()+"::\n\t\t "+t.getMessage());
-                                //t.printStackTrace();
+                    if(f.getName().endsWith(JSON_EXT)) {//found a json file
+                        try {
+                            DataElement de = new DataElement(mDirName, f, stripDir);
+                            this.jsonFiles.get(mDirName).add(de);
+                        } catch(JsonParsingException t) {
+                            System.err.println("Caught an exception trying to read JSON file "+f.getName());
+                            System.err.println("Exception is::"+t);
+                            this.errorList.add("Skipping malformed JSON file "+f.getName()+" in "+f.getParent()+"::\n\t\t "+t.getMessage());
+                            if(dir.getParent().startsWith(this.modDir)) {
+                                this.reducedErrorList.add("Skipping malformed JSON file "+f.getName()+" in "+f.getParent()+"::\n\t\t "+t.getMessage());
                             }
-                        } else {
-                            this.errorList.add("Skipping JSON file "+f.getName()+"::\t file is not in a directory supported by this program.");
+                            //t.printStackTrace();
+                        } catch(IOException ioe) {
+                            //ignore - means an error in building the data element due to malformed or unavailable data
                         }
                     }
                 }
